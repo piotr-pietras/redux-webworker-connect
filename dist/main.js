@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 const stringify = function (obj) {
     return JSON.stringify(obj, function (_, value) {
         if (value instanceof Function || typeof value == "function") {
@@ -20,6 +20,7 @@ const buildWorker = function () {
         type: "module",
     });
 };
+let workerQue = {};
 export const buildWorkerSlice = ({ dependencies }) => {
     const name = "@worker";
     const initialState = {
@@ -33,7 +34,14 @@ export const buildWorkerSlice = ({ dependencies }) => {
         initialState,
         name,
         extraReducers: (builder) => {
-            builder.addCase(exec.pending, (state, action) => { });
+            builder.addCase(exec.pending, (state, action) => {
+                const { id } = action.meta.arg;
+                state.workers[id] = {
+                    id,
+                    pending: true,
+                    data: null,
+                };
+            });
             builder.addCase(exec.fulfilled, (state, action) => {
                 const { id } = action.meta.arg;
                 const { data } = action.payload;
@@ -44,21 +52,15 @@ export const buildWorkerSlice = ({ dependencies }) => {
                 };
             });
         },
-        reducers: {
-            initialize(state, action) {
-                const { id } = action.payload;
-                state.workers[id] = {
-                    id,
-                    pending: true,
-                    data: null,
-                };
-            },
-        },
+        reducers: {},
     });
-    const { initialize } = workerSlice.actions;
-    const exec = createAsyncThunk(`${name}/exec`, async ({ id, func }, thunkAPI) => {
+    const exec = createAsyncThunk(`${name}/exec`, async ({ id, func }) => {
+        if (workerQue[id]) {
+            workerQue[id].terminate();
+            delete workerQue[id];
+        }
         const worker = buildWorker();
-        thunkAPI.dispatch(initialize({ id }));
+        workerQue[id] = worker;
         return new Promise((resolve) => {
             worker.onmessage = function (e) {
                 worker.terminate();
@@ -67,5 +69,8 @@ export const buildWorkerSlice = ({ dependencies }) => {
             worker.postMessage([stringify(func), deps]);
         });
     });
-    return { workerSlice, workerActions: { exec } };
+    const buildWorkerFunc = (func) => {
+        return func;
+    };
+    return { workerSlice, workerActions: { exec }, buildWorkerFunc };
 };

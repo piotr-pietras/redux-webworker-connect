@@ -24,7 +24,7 @@ self.onmessage = async function worker(e) {
     });
   };
 
-  parse(func)().then((v) => {
+  parse(func)(modules).then((v) => {
     postMessage(v);
   });
 };

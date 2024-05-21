@@ -1,13 +1,17 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { buildWorkerSlice } from "./dist/main";
 
-export const { workerSlice, workerActions } = buildWorkerSlice({
-  dependencies: { uuid: new URL("uuid", import.meta.url) },
-});
-const reducer = combineReducers({ [workerSlice.name]: workerSlice.reducer });
+export const { workerSlice, workerActions, buildWorkerFunc } =
+  buildWorkerSlice<{
+    uuid: { v4: (text: string) => string };
+  }>({
+    dependencies: { uuid: new URL("uuid", import.meta.url) },
+  });
 
 export const store = configureStore({
-  reducer,
+  reducer: {
+    [workerSlice.name]: workerSlice.reducer
+  },
 });
 
 const state = store.getState();

@@ -1,10 +1,4 @@
-import {
-  PayloadAction,
-  createAsyncThunk,
-  createSlice,
-  current,
-  original,
-} from "@reduxjs/toolkit";
+import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const stringify = function (obj: any) {
   return JSON.stringify(obj, function (_, value) {
@@ -33,7 +27,6 @@ type Dependencies = { [key: string]: URL };
 type WorkerInfo = {
   id: string;
   data: any;
-  // worker: Worker;
   pending: boolean;
 };
 interface InitialState {
@@ -44,12 +37,14 @@ interface Options {
   dependencies: Dependencies;
 }
 
-export const buildWorkerSlice = ({ dependencies }: Options) => {
+let workerQue: { [keys: string]: Worker } = {};
+
+export const buildWorkerSlice = <D>({ dependencies }: Options) => {
   const name = "@worker";
   const initialState: InitialState = {
     workers: {},
   };
-  let deps = {};
+  let deps = {} as D;
   Object.keys(dependencies).forEach((key) => {
     deps = { ...deps, [key]: dependencies[key].href };
   });
@@ -58,7 +53,14 @@ export const buildWorkerSlice = ({ dependencies }: Options) => {
     initialState,
     name,
     extraReducers: (builder) => {
-      builder.addCase(exec.pending, (state, action) => {});
+      builder.addCase(exec.pending, (state, action) => {
+        const { id } = action.meta.arg;
+        state.workers[id] = {
+          id,
+          pending: true,
+          data: null,
+        };
+      });
       builder.addCase(exec.fulfilled, (state, action) => {
         const { id } = action.meta.arg;
         const { data } = action.payload;
@@ -69,27 +71,18 @@ export const buildWorkerSlice = ({ dependencies }: Options) => {
         };
       });
     },
-    reducers: {
-      initialize(state, action: PayloadAction<{ id: string }>) {
-        const { id } = action.payload;
-        state.workers[id] = {
-          id,
-          pending: true,
-          data: null,
-        };
-      },
-    },
+    reducers: {},
   });
 
-  const { initialize } = workerSlice.actions;
   const exec = createAsyncThunk(
     `${name}/exec`,
-    async (
-      { id, func }: { id: string; func: () => Promise<any> },
-      thunkAPI
-    ) => {
+    async ({ id, func }: { id: string; func: () => Promise<any> }) => {
+      if (workerQue[id]) {
+        workerQue[id].terminate();
+        delete workerQue[id];
+      }
       const worker = buildWorker();
-      thunkAPI.dispatch(initialize({ id }));
+      workerQue[id] = worker;
       return new Promise<any>((resolve) => {
         worker.onmessage = function (e) {
           worker.terminate();
@@ -100,9 +93,9 @@ export const buildWorkerSlice = ({ dependencies }: Options) => {
     }
   );
 
-  const workerFunction = (func: () => Promise<any>) => {
+  const buildWorkerFunc = (func: (deps: D) => Promise<any>) => {
+    return func;
+  };
 
-  }
-
-  return { workerSlice, workerActions: { exec } };
+  return { workerSlice, workerActions: { exec }, buildWorkerFunc };
 };

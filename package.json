@@ -12,6 +12,10 @@
   "version": "1.0.0",
   "main": "./dist/main.js",
   "types": "./dist/main.d.ts",
+  "files": [
+    "README.md",
+    "dist"
+  ],
   "scripts": {
     "build": "npx tsc"
   },
@@ -20,7 +24,6 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.4",
-    "json-fn": "^1.1.1",
     "redux": "^5.0.1"
   }
 }
