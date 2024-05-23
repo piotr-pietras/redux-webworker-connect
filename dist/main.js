@@ -21,16 +21,12 @@ const buildWorker = function () {
     });
 };
 let workerQue = {};
-export const buildWorkerSlice = ({ dependencies }) => {
+export const buildWorkerSlice = () => {
     const name = "@worker";
     const initialState = {
         workers: {},
     };
-    let deps = {};
-    Object.keys(dependencies).forEach((key) => {
-        deps = { ...deps, [key]: dependencies[key].href };
-    });
-    const workerSlice = createSlice({
+    const slice = createSlice({
         initialState,
         name,
         extraReducers: (builder) => {
@@ -66,11 +62,8 @@ export const buildWorkerSlice = ({ dependencies }) => {
                 worker.terminate();
                 resolve(e);
             };
-            worker.postMessage([stringify(func), deps]);
+            worker.postMessage([stringify(func)]);
         });
     });
-    const buildWorkerFunc = (func) => {
-        return func;
-    };
-    return { workerSlice, workerActions: { exec }, buildWorkerFunc };
+    return { slice, actions: { exec } };
 };

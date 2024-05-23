@@ -9,5 +9,5 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true
   },
-  "files": ["./src/main.ts"]
+  "files": ["./src/main.ts", "./src/worker.ts"]
 }

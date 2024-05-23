@@ -1,4 +1,4 @@
-import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 const stringify = function (obj: any) {
   return JSON.stringify(obj, function (_, value) {
@@ -23,33 +23,29 @@ const buildWorker = function () {
   });
 };
 
-type Dependencies = { [key: string]: URL };
+type Modules = { [key: string]: unknown };
 type WorkerInfo = {
   id: string;
   data: any;
   pending: boolean;
 };
+interface ExecPayload {
+  id: string;
+  func: (modules?: unknown) => Promise<any>;
+}
 interface InitialState {
   workers: { [key: string]: WorkerInfo };
 }
 
-interface Options {
-  dependencies: Dependencies;
-}
-
 let workerQue: { [keys: string]: Worker } = {};
 
-export const buildWorkerSlice = <D>({ dependencies }: Options) => {
+export const buildWorkerSlice = <D>() => {
   const name = "@worker";
   const initialState: InitialState = {
     workers: {},
   };
-  let deps = {} as D;
-  Object.keys(dependencies).forEach((key) => {
-    deps = { ...deps, [key]: dependencies[key].href };
-  });
 
-  const workerSlice = createSlice({
+  const slice = createSlice({
     initialState,
     name,
     extraReducers: (builder) => {
@@ -76,7 +72,7 @@ export const buildWorkerSlice = <D>({ dependencies }: Options) => {
 
   const exec = createAsyncThunk(
     `${name}/exec`,
-    async ({ id, func }: { id: string; func: () => Promise<any> }) => {
+    async ({ id, func }: ExecPayload) => {
       if (workerQue[id]) {
         workerQue[id].terminate();
         delete workerQue[id];
@@ -88,14 +84,10 @@ export const buildWorkerSlice = <D>({ dependencies }: Options) => {
           worker.terminate();
           resolve(e);
         };
-        worker.postMessage([stringify(func), deps]);
+        worker.postMessage([stringify(func)]);
       });
     }
   );
 
-  const buildWorkerFunc = (func: (deps: D) => Promise<any>) => {
-    return func;
-  };
-
-  return { workerSlice, workerActions: { exec }, buildWorkerFunc };
+  return { slice, actions: { exec } };
 };

@@ -1,15 +1,10 @@
 self.onmessage = async function worker(e) {
   const func = e.data[0];
-  const deps = e.data[1];
-  let modules = {};
-  await Promise.all(
-    Object.keys(deps).map(async (key) => {
-      const module = await import(deps[key]);
-      modules = { ...modules, [key]: module };
-      return Promise.resolve();
-    })
-  );
+  // let modules = await import(`/* webpackChunkName: worker-deps */${import.meta.url}/worker-deps.js`);
+  //@ts-ignore
+  let modules = await import(`/src/worker.modules.js`);
 
+  //@ts-ignore
   const parse = function (str) {
     return JSON.parse(str, function (_, value) {
       let prefix;
@@ -23,7 +18,7 @@ self.onmessage = async function worker(e) {
       return value;
     });
   };
-
+  //@ts-ignore
   parse(func)(modules).then((v) => {
     postMessage(v);
   });
