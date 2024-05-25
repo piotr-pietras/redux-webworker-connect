@@ -1,3 +1,4 @@
+import { combineReducers } from "redux";
 import { worker } from "./worker";
 
 export const reducer = {

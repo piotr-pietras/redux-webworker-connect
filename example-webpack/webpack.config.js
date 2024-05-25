@@ -18,6 +18,9 @@ module.exports = {
         exclude: /node_modules/,
       },
     ],
+    alias: {
+      "worker-modules": path.resolve(__dirname, "src/worker.modules.js"),
+    },
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
@@ -25,20 +28,8 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({
       template: "./public/index.html",
-      // filename: "./public/index.html",
-      // inject: true,
     }),
   ],
-  // entry: {
-  //   workerDeps: {
-  //     entry: "./src/serices/redux/worker.deps.ts",
-  //     output: "[name].chunk.js",
-  //   },
-  // },
-  // entry: {
-    // home: "./src/index.tsx",
-    // "worker-deps": { import: "./src/worker.deps.ts", filename: "[name].js" },
-  // },
   output: {
     filename: "[chunkhash].chunk.js",
     path: path.resolve(__dirname, "dist"),

@@ -13,9 +13,30 @@ interface InitialState {
     };
 }
 export declare const buildWorkerSlice: <D>() => {
-    slice: import("@reduxjs/toolkit").Slice<InitialState, {}, "@worker", "@worker", import("@reduxjs/toolkit").SliceSelectors<InitialState>>;
+    slice: import("@reduxjs/toolkit").Slice<InitialState, {}, "@worker", "@worker", {
+        all: (state: InitialState) => {
+            [key: string]: WorkerInfo;
+        };
+        byId: (state: InitialState, id: any) => WorkerInfo;
+    }>;
     actions: {
         exec: import("@reduxjs/toolkit").AsyncThunk<any, ExecPayload, import("@reduxjs/toolkit/dist/createAsyncThunk").AsyncThunkConfig>;
+    };
+    selectors: {
+        all: import("reselect").Selector<{
+            "@worker": InitialState;
+        }, {
+            [key: string]: WorkerInfo;
+        }, []> & {
+            unwrapped: (state: InitialState) => {
+                [key: string]: WorkerInfo;
+            };
+        };
+        byId: import("reselect").Selector<{
+            "@worker": InitialState;
+        }, WorkerInfo, [id: any]> & {
+            unwrapped: (state: InitialState, id: any) => WorkerInfo;
+        };
     };
 };
 export {};

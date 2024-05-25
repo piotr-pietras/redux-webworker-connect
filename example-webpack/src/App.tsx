@@ -1,18 +1,10 @@
 import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { buildWorkerFunc, worker } from "./services/redux/worker";
+import { worker } from "./services/redux/worker";
 
 const logoURL =
   "https://raw.githubusercontent.com/reduxjs/redux/master/logo/logo.png";
 const { exec } = worker.actions;
-const selectWorkers = (state: any) => state["@worker"].workers;
-const useSelectWorker = (id: string) => {
-  const workers = useSelector(selectWorkers);
-  const worker = useMemo(() => {
-    return workers[id];
-  }, [workers[id]]);
-  return worker;
-};
 
 const func = () => {
   const size = Math.pow(10, 8);
@@ -40,9 +32,9 @@ const func3 = () => {
 
 export const App = () => {
   const dispatch = useDispatch<any>();
-  const test1 = useSelectWorker("1");
-  const test2 = useSelectWorker("2");
-  const test3 = useSelectWorker("3");
+  const test1 = useSelector((s: any) => worker.selectors.byId(s, "1"));
+  const test2 = useSelector((s: any) => worker.selectors.byId(s, "2"));
+  const test3 = useSelector((s: any) => worker.selectors.byId(s, "3"));
 
   return (
     <div className="container">

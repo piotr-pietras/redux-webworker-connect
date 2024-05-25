@@ -23,7 +23,6 @@ const buildWorker = function () {
   });
 };
 
-type Modules = { [key: string]: unknown };
 type WorkerInfo = {
   id: string;
   data: any;
@@ -59,7 +58,7 @@ export const buildWorkerSlice = <D>() => {
       });
       builder.addCase(exec.fulfilled, (state, action) => {
         const { id } = action.meta.arg;
-        const { data } = action.payload;
+        const data = action.payload;
         state.workers[id] = {
           ...state.workers[id],
           pending: false,
@@ -68,6 +67,10 @@ export const buildWorkerSlice = <D>() => {
       });
     },
     reducers: {},
+    selectors: {
+      all: (state) => state.workers,
+      byId: (state, id) => state.workers[id],
+    },
   });
 
   const exec = createAsyncThunk(
@@ -82,12 +85,12 @@ export const buildWorkerSlice = <D>() => {
       return new Promise<any>((resolve) => {
         worker.onmessage = function (e) {
           worker.terminate();
-          resolve(e);
+          resolve(e.data);
         };
         worker.postMessage([stringify(func)]);
       });
     }
   );
 
-  return { slice, actions: { exec } };
+  return { slice, actions: { exec }, selectors: slice.selectors };
 };

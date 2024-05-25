@@ -40,7 +40,7 @@ export const buildWorkerSlice = () => {
             });
             builder.addCase(exec.fulfilled, (state, action) => {
                 const { id } = action.meta.arg;
-                const { data } = action.payload;
+                const data = action.payload;
                 state.workers[id] = {
                     ...state.workers[id],
                     pending: false,
@@ -49,6 +49,10 @@ export const buildWorkerSlice = () => {
             });
         },
         reducers: {},
+        selectors: {
+            all: (state) => state.workers,
+            byId: (state, id) => state.workers[id],
+        },
     });
     const exec = createAsyncThunk(`${name}/exec`, async ({ id, func }) => {
         if (workerQue[id]) {
@@ -60,10 +64,10 @@ export const buildWorkerSlice = () => {
         return new Promise((resolve) => {
             worker.onmessage = function (e) {
                 worker.terminate();
-                resolve(e);
+                resolve(e.data);
             };
             worker.postMessage([stringify(func)]);
         });
     });
-    return { slice, actions: { exec } };
+    return { slice, actions: { exec }, selectors: slice.selectors };
 };
