@@ -51,7 +51,15 @@ export const buildWorkerSlice = () => {
         reducers: {},
         selectors: {
             all: (state) => state.workers,
-            byId: (state, id) => state.workers[id],
+            byId: (state, id) => {
+                if (state.workers[id]) {
+                    return state.workers[id];
+                }
+                return {
+                    id,
+                    pending: false,
+                };
+            },
         },
     });
     const exec = createAsyncThunk(`${name}/exec`, async ({ id, func }) => {

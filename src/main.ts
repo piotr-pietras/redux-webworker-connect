@@ -38,7 +38,7 @@ interface InitialState {
 
 let workerQue: { [keys: string]: Worker } = {};
 
-export const buildWorkerSlice = <D>() => {
+export const buildWorkerSlice = () => {
   const name = "@worker";
   const initialState: InitialState = {
     workers: {},
@@ -69,7 +69,15 @@ export const buildWorkerSlice = <D>() => {
     reducers: {},
     selectors: {
       all: (state) => state.workers,
-      byId: (state, id) => state.workers[id],
+      byId: (state, id) => {
+        if (state.workers[id]) {
+          return state.workers[id];
+        }
+        return {
+          id,
+          pending: false,
+        } as WorkerInfo;
+      },
     },
   });
 

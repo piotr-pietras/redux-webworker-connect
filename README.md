@@ -2,6 +2,8 @@
 
 🚧**Beta version not suitable for productin!**🚧
 
+Easy to use Web Worker connected with Redux.
+
 - Webpack ✅
 - Rollup (Vite) ✅
 - other boundlers ❔❔❔ (testing)
@@ -10,11 +12,11 @@
 
 **1)** `npm i redux-webworker-connected`
 
-**2)** We need to create file that would be entry point for boundler to create chunks of modules for worker. Let's create it `src/worker.modules.ts`.
+**2)** You need to create a file that would be an entry point for a bundler to create chunks of modules for worker. Let's create `src/worker.modules.ts`.
 
-> Note: If you don't use TS it may have js exstension.
+> ℹ️ Note: If you don't use TS it may have .js exstension.
 
-**3)** Let's add alias for the boundler that can easily find this module file.
+**3)** Let's add an alias for the bundler that can easily find this module file.
 **for Webpack open webpack.config.js**
 
 ```js script
@@ -23,7 +25,7 @@ module.exports = {
   module: {
     (...)
     alias: {
-      //Note: Alies name must be exactly "worker.modules"
+      //ℹ️ Note: Alies name must be exactly "worker.modules"
       "worker.modules": path.resolve(__dirname, "src/worker.modules.ts"),
     },
   },
@@ -38,21 +40,21 @@ export default defineConfig({
   resolve: {
     (...)
     alias: {
-      //Note: Alies name must be exactly "worker.modules"
+      //ℹ️ Note: Alies name must be exactly "worker.modules"
       "worker.modules": path.resolve(__dirname, "src/worker.modules.ts"),
     },
   },
   optimizeDeps: {
-    //Note: It is needed to exclude it from optimize pre-build since it 
-    //prevents to resolve file's path correctly.
+    //ℹ️ Note: It is needed to exclude it from optimizing pre-build since it
+    //prevents resolving the file's path correctly.
     exclude: ["webworker-redux-connected"],
   },
 })
 ```
 
-### Quick start
+### Run first worker
 
-- Firstly we need to create worker slice and applies its reducers to application store
+- Firstly you need to create a worker slice and apply its reducers to the application store
 
 ```js script
 import { buildWorkerSlice } from "redux-webworker-connected";
@@ -65,22 +67,62 @@ export const store = configureStore({
 });
 ```
 
-- Now we are ready to execute some function in react component
+- Now you are ready to execute some function in the React component
+
+> ℹ️ Note: Async/await syntax is not available yet
 
 ```js script
 import { worker } from "./store";
 
 const { exec } = worker.actions;
+const { byId } = worker.selectors
 const func = () => {
   console.log("hello world");
-  return Promise.resolve("someValue");
+  return new Promise((resolve) => {
+    setTimeout(() => resolve("test"), 2000);
+  });
 };
 
+
 function App() {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<any>();
+  const { data, pending } = useSelector((s: any) => byId(s, "1"));
+  const onClick = () => dispatch(exec({ id: "1", func }));
 
   return (
-    <button onClick={() => dispatch(exec({ id: "1", func }))}>test</button>
+    <>
+      {pending ? <div>pending...</div> : <div>{data}</div>}
+      <button onClick={onClick}>test</button>;
+    </>
   );
 }
+```
+
+## Inject modules
+
+Worker is run in a completely different context which is why the worker's function does not have access to anything outside its closure. However, you can statically define modules that should be imported to the worker's context. Then you can easily access those modules that are passed as a function's argument. Bundler does the job for you creating separate chunks for those modules and importing them to the worker context.
+
+- Let's add to our `worker.modules.ts` some modules you would like to use in the worker
+
+```javascript
+import { v4 } from "uuid";
+
+const modules = { v4 };
+
+export type WorkerModules = typeof modules;
+export default modules;
+```
+
+- Now we can use `uuid` library in worker
+
+```js script
+import { WorkerModules } from "./worker.modules";
+
+//ℹ️ Note: TODO implicit typing
+const func = (modules: WorkerModules) => {
+  const id = modules.v4();
+  return Promise.resolve(id);
+};
+
+(...)
 ```

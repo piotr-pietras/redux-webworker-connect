@@ -12,7 +12,7 @@ interface InitialState {
         [key: string]: WorkerInfo;
     };
 }
-export declare const buildWorkerSlice: <D>() => {
+export declare const buildWorkerSlice: () => {
     slice: import("@reduxjs/toolkit").Slice<InitialState, {}, "@worker", "@worker", {
         all: (state: InitialState) => {
             [key: string]: WorkerInfo;

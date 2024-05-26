@@ -2,8 +2,6 @@ import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { worker } from "./services/redux/worker";
 
-const logoURL =
-  "https://raw.githubusercontent.com/reduxjs/redux/master/logo/logo.png";
 const { exec } = worker.actions;
 
 const func = () => {
@@ -22,6 +20,8 @@ const func2 = (modules: any) => {
 
 const func3 = () => {
   return new Promise((resolve) => {
+    const logoURL =
+      "https://raw.githubusercontent.com/reduxjs/redux/master/logo/logo.png";
     fetch(logoURL).then((res) => {
       res.blob().then((v) => {
         resolve(v);
@@ -93,7 +93,7 @@ export const App = () => {
             {test3.pending ? (
               <div>pending...</div>
             ) : (
-              <div>fullfiled: {test3.data.toString()}</div>
+              <div>fullfiled: {test3.data?.toString()}</div>
             )}
           </>
         ) : (

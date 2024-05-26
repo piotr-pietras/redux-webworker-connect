@@ -1,17 +1,11 @@
 import { useDispatch, useSelector } from "react-redux";
 import { worker } from "./services/redux/worker";
 
-const logoURL =
-  "https://raw.githubusercontent.com/reduxjs/redux/master/logo/logo.png";
 const { exec } = worker.actions;
 
 const func = () => {
-  const size = Math.pow(10, 8);
-  let sum = 0;
-  for (let i = 0; i < size; i++) {
-    sum += Math.random();
-  }
-  return Promise.resolve(sum);
+  console.log("hello world");
+  return new Promise((r) => setTimeout(() => r("test"), 2000));
 };
 
 const func2 = (modules: any) => {
@@ -21,6 +15,8 @@ const func2 = (modules: any) => {
 
 const func3 = () => {
   return new Promise((resolve) => {
+    const logoURL =
+      "https://raw.githubusercontent.com/reduxjs/redux/master/logo/logo.png";
     fetch(logoURL).then((res) => {
       res.blob().then((v) => {
         resolve(v);
@@ -40,9 +36,7 @@ export const App = () => {
       <div>
         <button
           onClick={() => {
-            dispatch(
-              exec({ id: "1", func: func, options: { omitModules: true } })
-            );
+            dispatch(exec({ id: "1", func: func }));
           }}
         >
           test1
@@ -94,7 +88,7 @@ export const App = () => {
             {test3.pending ? (
               <div>pending...</div>
             ) : (
-              <div>fullfiled: {test3.data.toString()}</div>
+              <div>fullfiled: {test3.data?.toString()}</div>
             )}
           </>
         ) : (
