@@ -1,8 +1,8 @@
 ## webworker-redux-connected
 
-🚧**Beta version not suitable for productin!**🚧
-
 Easy to use Web Worker connected with Redux.
+
+🚧**Beta version not suitable for productin!**🚧
 
 - Webpack ✅
 - Rollup (Vite) ✅
@@ -17,6 +17,7 @@ Easy to use Web Worker connected with Redux.
 > ℹ️ Note: If you don't use TS it may have .js exstension.
 
 **3)** Let's add an alias for the bundler that can easily find this module file.
+
 **for Webpack open webpack.config.js**
 
 ```js script
@@ -55,6 +56,8 @@ export default defineConfig({
 ### Run first worker
 
 - Firstly you need to create a worker slice and apply its reducers to the application store
+
+> ℹ️ Note: `configureStore` adds Thunk middleware by default. If you don't have Thunk in your store you should add it.
 
 ```js script
 import { buildWorkerSlice } from "redux-webworker-connected";

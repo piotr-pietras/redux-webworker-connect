@@ -16,7 +16,7 @@
     "redux": "^4.2.1",
     "ts-node": "^10.9.1",
     "uuid": "^9.0.1",
-    "webworker-redux-connected": "^0.0.1"
+    "webworker-redux-connected": "^0.0.5"
   },
   "devDependencies": {
     "@types/react": "^18.2.66",

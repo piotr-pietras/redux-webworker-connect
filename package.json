@@ -9,7 +9,7 @@
     "type": "git",
     "url": "https://github.com/piotr-pietras/webworker-redux-connected"
   },
-  "version": "0.0.1",
+  "version": "0.0.5",
   "main": "./dist/main.js",
   "types": "./dist/main.d.ts",
   "files": [

@@ -4,10 +4,13 @@ import { worker } from "./services/redux/worker";
 const { exec } = worker.actions;
 
 const func = () => {
-  console.log("hello world");
-  return new Promise((r) => setTimeout(() => r("test"), 2000));
+  const size = Math.pow(10, 8);
+  let sum = 0;
+  for (let i = 0; i < size; i++) {
+    sum += Math.random();
+  }
+  return Promise.resolve(sum);
 };
-
 const func2 = (modules: any) => {
   const id = modules.v4();
   return Promise.resolve(id);
