@@ -10,7 +10,7 @@ Easy to use Web Worker connected with Redux.
 
 ## Install
 
-**1)** `npm i redux-webworker-connected`
+**1)** `npm i webworker-redux-connected`
 
 **2)** You need to create a file that would be an entry point for a bundler to create chunks of modules for worker. Let's create `src/worker.modules.ts`.
 
@@ -53,7 +53,7 @@ export default defineConfig({
 })
 ```
 
-### Run first worker
+## Run first worker
 
 - Firstly you need to create a worker slice and apply its reducers to the application store
 
