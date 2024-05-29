@@ -18,12 +18,12 @@ module.exports = {
         exclude: /node_modules/,
       },
     ],
-    alias: {
-      "worker-modules": path.resolve(__dirname, "src/worker.modules.js"),
-    },
   },
   resolve: {
     extensions: [".tsx", ".ts", ".js"],
+    alias: {
+      "worker.modules": path.resolve(__dirname, "src/worker.modules.js"),
+    },
   },
   plugins: [
     new HtmlWebpackPlugin({
